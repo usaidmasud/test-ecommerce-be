@@ -23,7 +23,7 @@ class CartRequest extends FormRequest
     {
         return [
             'product_id' => 'required',
-            'user_id' => 'required',
+            'qty' => 'required|integer|min:0',
         ];
     }
 }

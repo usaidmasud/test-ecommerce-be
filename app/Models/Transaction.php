@@ -79,4 +79,15 @@ class Transaction extends Model
     {
         return $query->where('status', $status);
     }
+
+    /**
+     * Scope a query to only include byUser
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeByUser($query, $user)
+    {
+        return $query->where('user_id', $user);
+    }
 }

@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Buyer\CartController;
+use App\Http\Controllers\Buyer\OrderController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\Seller\ProductController;
 use App\Http\Controllers\Seller\TransactionController;
@@ -32,5 +34,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('/product', ProductController::class);
         Route::apiResource('/transaction', TransactionController::class);
         Route::post('/file/upload', [FileController::class, 'upload']);
+    });
+    // endpoint buyer
+    Route::prefix('buyer')->group(function () {
+        Route::apiResource('/cart', CartController::class);
+        Route::apiResource('/order', OrderController::class);
     });
 });
