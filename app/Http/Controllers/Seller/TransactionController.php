@@ -44,8 +44,13 @@ class TransactionController extends Controller
     {
         $credentials = $request->all();
         $product = Product::where('id', $credentials['product_id'])->first();
+        // check product
         if (!$product) {
             return $this->responseNotFound('Product not found');
+        }
+        // check stock
+        if ($credentials['qty'] > $product->stock ) {
+            return $this->responseNotAccept('Stock not available');
         }
         try {
             $this->lockTable('transactions');
@@ -57,6 +62,8 @@ class TransactionController extends Controller
                 "total_price" => $product->price * $credentials['qty'],
                 "qty" => $credentials['qty'],
             ]);
+            // update product stock
+            $product->increment('stock', $obj->qty);
             DB::commit();
             $this->unlockTable();
             return new TransactionResource($obj);
@@ -86,11 +93,18 @@ class TransactionController extends Controller
         $obj = Transaction::find($id);
         $credentials = $request->all();
         $product = Product::where('id', $credentials['product_id'])->first();
+        // check product
         if (!$product) {
             return $this->responseNotFound('Product not found');
         }
+        // check stock
+        if ($credentials['qty'] > ($product->stock + $obj->qty) ) {
+            return $this->responseNotAccept('Stock not available');
+        }
         try {
             DB::beginTransaction();
+            // kembalikan stok yang sebelumnya dibeli
+            $product->increment('stock', $obj->qty);
             $obj->update([
                 "product_id" => $credentials['product_id'],
                 "user_id" => auth()->user()->id,
@@ -98,6 +112,8 @@ class TransactionController extends Controller
                 "status" => $credentials['status'],
                 "qty" => $credentials['qty'],
             ]);
+            // update product stock
+            $product->decrement('stock', $obj->qty);
             DB::commit();
             return new TransactionResource($obj);
         } catch (\Throwable $th) {

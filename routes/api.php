@@ -32,12 +32,13 @@ Route::middleware('auth:sanctum')->group(function () {
     // endpoint seller
     Route::prefix('seller')->middleware(['seller'])->group(function () {
         Route::apiResource('/product', ProductController::class);
-        Route::apiResource('/transaction', TransactionController::class);
+        Route::apiResource('/transaction', TransactionController::class)->except(['store']);
         Route::post('/file/upload', [FileController::class, 'upload']);
     });
     // endpoint buyer
     Route::prefix('buyer')->middleware(['buyer'])->group(function () {
         Route::apiResource('/cart', CartController::class);
-        Route::apiResource('/order', OrderController::class);
+        Route::apiResource('/order', OrderController::class)->only(['index']);
+        Route::apiResource('/order', TransactionController::class)->except(['index', 'update']);
     });
 });
