@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('order_id', 25);
             $table->foreignId('product_id')->constrained('products');
             $table->foreignId('user_id')->constrained('users');
+            $table->integer('qty')->unsigned();
             $table->integer('total_price')->unsigned();
             $table->enum('status', ['pending', 'process','paid'])->default('pending');
             $table->timestamps();

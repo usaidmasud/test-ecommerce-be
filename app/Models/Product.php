@@ -20,4 +20,15 @@ class Product extends Model
         'price',
         'stock',
     ];
+
+    /**
+     * Scope a query to only include search
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeSearch($query, $search)
+    {
+        return $query->where('name', 'LIKE', '%' . $search . '%');
+    }
 }

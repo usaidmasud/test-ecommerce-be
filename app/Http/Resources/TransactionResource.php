@@ -16,11 +16,12 @@ class TransactionResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'user_id' => $this->user_id,
-            'product_id' => $this->product_id,
             'order_id' => $this->order_id,
+            'qty' => $this->qty,
             'total_price' => $this->total_price,
             'status' => $this->status,
+            'user_id' => $this->user_id,
+            'product_id' => $this->product_id,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'product' => new ProductResource($this->whenLoaded('product')),

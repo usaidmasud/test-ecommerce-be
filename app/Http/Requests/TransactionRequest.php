@@ -11,7 +11,7 @@ class TransactionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,9 +21,25 @@ class TransactionRequest extends FormRequest
      */
     public function rules(): array
     {
+        if ($this->method() === 'POST') {
+            return $this->store();
+        }
+        return $this->update();
+    }
+
+    private function store(): array
+    {
         return [
             'product_id' => 'required',
-            'user_id' => 'required',
+            'qty' => 'required',
+        ];
+    }
+    private function update(): array
+    {
+        return [
+            'product_id' => 'required',
+            'qty' => 'required',
+            'status' => 'in:pending,process,paid',
         ];
     }
 }

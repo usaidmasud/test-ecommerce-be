@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\Seller\ProductController;
+use App\Http\Controllers\Seller\TransactionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -29,6 +30,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // endpoint seller
     Route::prefix('seller')->group(function () {
         Route::apiResource('/product', ProductController::class);
+        Route::apiResource('/transaction', TransactionController::class);
         Route::post('/file/upload', [FileController::class, 'upload']);
     });
 });

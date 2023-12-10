@@ -20,7 +20,23 @@ class Transaction extends Model
         'user_id',
         'total_price',
         'status',
+        'qty',
     ];
+
+    /**
+     * The "booting" method of the model.
+     *
+     * @return void
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Generate a unique order number before creating a new transaction
+        static::creating(function ($transaction) {
+            $transaction->order_id = 'ORD' . now()->format('Ymd') . static::count() + 1;
+        });
+    }
 
     /**
      * Get the user that owns the Transaction
@@ -40,5 +56,27 @@ class Transaction extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class, 'product_id', 'id');
+    }
+
+    /**
+     * Scope a query to only include search
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeSearch($query, $search)
+    {
+        return $query->where('order_id', 'LIKE', '%' . $search . '%');
+    }
+
+    /**
+     * Scope a query to only include filterStatus
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeStatus($query, $status)
+    {
+        return $query->where('status', $status);
     }
 }
