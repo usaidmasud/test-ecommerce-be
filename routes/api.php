@@ -30,13 +30,13 @@ Route::post('/auth/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/profile', [AuthController::class, 'profile']);
     // endpoint seller
-    Route::prefix('seller')->group(function () {
+    Route::prefix('seller')->middleware(['seller'])->group(function () {
         Route::apiResource('/product', ProductController::class);
         Route::apiResource('/transaction', TransactionController::class);
         Route::post('/file/upload', [FileController::class, 'upload']);
     });
     // endpoint buyer
-    Route::prefix('buyer')->group(function () {
+    Route::prefix('buyer')->middleware(['buyer'])->group(function () {
         Route::apiResource('/cart', CartController::class);
         Route::apiResource('/order', OrderController::class);
     });
