@@ -11,14 +11,6 @@ use Illuminate\Support\Facades\Event;
 
 class EventServiceProvider extends ServiceProvider
 {
-    /**
-     * The model observers for your application.
-     *
-     * @var array
-     */
-    protected $observers = [
-        Transaction::class => [TransactionObserver::class],
-    ];
 
     /**
      * The event to listener mappings for the application.
@@ -36,7 +28,7 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Transaction::observe(TransactionObserver::class);
     }
 
     /**

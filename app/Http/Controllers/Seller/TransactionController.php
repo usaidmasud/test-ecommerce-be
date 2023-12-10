@@ -3,14 +3,19 @@
 namespace App\Http\Controllers\Seller;
 
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\BuyerMiddleware;
 use App\Http\Requests\TransactionRequest;
 use App\Http\Resources\TransactionResource;
+use App\Jobs\SendEmailBuyerJob;
+use App\Mail\OrderMail;
 use App\Models\Product;
 use App\Models\Transaction;
 use App\Traits\ApiTrait;
 use App\Traits\HelperTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 
 class TransactionController extends Controller
 {
@@ -62,10 +67,12 @@ class TransactionController extends Controller
                 "total_price" => $product->price * $credentials['qty'],
                 "qty" => $credentials['qty'],
             ]);
-            // update product stock
-            $product->increment('stock', $obj->qty);
-            DB::commit();
             $this->unlockTable();
+            // send mail
+            $user = auth()->user();
+            $transaction = Transaction::where('id',$obj->id)->with(['product'])->first();
+            dispatch(new SendEmailBuyerJob($user->email, $transaction));
+            DB::commit();
             return new TransactionResource($obj);
         } catch (\Throwable $th) {
             DB::rollback();
