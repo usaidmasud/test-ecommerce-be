@@ -3,42 +3,29 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
+    public function sellerRegister(RegisterRequest $request)
     {
+        $credentials = $request->all();
         try {
-            //Validated
-            $validateUser = Validator::make(
-                $request->all(),
-                [
-                    'name' => 'required|string|max:50',
-                    'email' => 'required|string|email|max:50|unique:users,email',
-                    'password' => 'required'
-                ]
-            );
-
-            if ($validateUser->fails()) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'validation error',
-                    'errors' => $validateUser->errors()
-                ], 401);
-            }
-
+            DB::beginTransaction();
             $user = User::create([
-                'email' => $request->email,
-                'name' => $request->name,
-                'role' => $request->role,
-                'password' => Hash::make($request->password)
+                'email' => $credentials['email'],
+                'name' => $credentials['name'],
+                'role' => 'seller',
+                'password' => Hash::make($credentials['password'])
             ]);
+            DB::commit();
 
             return response()->json([
                 'status' => true,
@@ -46,6 +33,33 @@ class AuthController extends Controller
                 'token' => $user->createToken("API TOKEN")->plainTextToken
             ], 200);
         } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
+    }
+    public function buyerRegister(RegisterRequest $request)
+    {
+        $credentials = $request->all();
+        try {
+            DB::beginTransaction();
+            $user = User::create([
+                'email' => $credentials['email'],
+                'name' => $credentials['name'],
+                'role' => 'buyer',
+                'password' => Hash::make($credentials['password'])
+            ]);
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'User Created Successfully',
+                'token' => $user->createToken("API TOKEN")->plainTextToken
+            ], 200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
             return response()->json([
                 'status' => false,
                 'message' => $th->getMessage()
